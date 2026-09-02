@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Heart, Menu, X, Search, User } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -17,9 +18,11 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { cartCount, wishlistCount } = useStore();
+  const { user, isLoggedIn } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === '/';
   const light = isHome && !scrolled;
+  const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -42,7 +45,6 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <Link to="/" className="flex flex-col group">
             <span
               className={`font-serif text-xl md:text-2xl font-semibold tracking-[0.15em] uppercase transition-colors ${
@@ -60,7 +62,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => (
               <NavLink
@@ -83,7 +84,6 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Icons */}
           <div
             className={`flex items-center gap-3 sm:gap-4 transition-colors ${
               light ? 'text-white' : 'text-charcoal'
@@ -96,13 +96,31 @@ export default function Navbar() {
             >
               <Search size={18} strokeWidth={1.5} />
             </Link>
+
+            {/* Account: avatar letter when logged in */}
             <Link
-              to="/account"
-              className={`p-1.5 transition-colors hidden sm:block ${light ? 'hover:text-[#e8d5a3]' : 'hover:text-gold-600'}`}
-              aria-label="Account"
+              to={isLoggedIn ? '/account' : '/login'}
+              className={`relative flex items-center gap-1.5 p-0.5 transition-colors ${light ? 'hover:opacity-90' : 'hover:opacity-90'}`}
+              aria-label={isLoggedIn ? 'My Account' : 'Sign in'}
+              title={isLoggedIn ? user.name : 'Sign in'}
             >
-              <User size={18} strokeWidth={1.5} />
+              {isLoggedIn ? (
+                <span
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-serif shadow-sm ring-2 transition-all ${
+                    light
+                      ? 'bg-[#c9a84c] text-[#2a1a10] ring-[#e8d5a3]/50'
+                      : 'bg-gold-500 text-charcoal ring-gold-200'
+                  }`}
+                >
+                  {initial}
+                </span>
+              ) : (
+                <span className={`p-1.5 ${light ? 'hover:text-[#e8d5a3]' : 'hover:text-gold-600'}`}>
+                  <User size={18} strokeWidth={1.5} />
+                </span>
+              )}
             </Link>
+
             <Link
               to="/wishlist"
               className={`relative p-1.5 transition-colors ${light ? 'hover:text-[#e8d5a3]' : 'hover:text-gold-600'}`}
@@ -138,7 +156,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -148,7 +165,7 @@ export default function Navbar() {
             transition={{ duration: 0.3 }}
             className="lg:hidden bg-[#faf7f2] border-t border-gold-100 overflow-hidden"
           >
-            <nav className="flex flex-col px-6 py-6 gap-4">
+            <nav className="flex flex-col px-6 py-6 gap-3">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}
@@ -162,6 +179,23 @@ export default function Navbar() {
                   {link.label}
                 </NavLink>
               ))}
+              <Link
+                to={isLoggedIn ? '/account' : '/login'}
+                className="flex items-center gap-2 text-sm font-medium py-2 text-charcoal border-t border-gold-100 mt-2 pt-4"
+              >
+                {isLoggedIn ? (
+                  <>
+                    <span className="w-7 h-7 rounded-full bg-gold-500 text-charcoal flex items-center justify-center text-xs font-serif font-semibold">
+                      {initial}
+                    </span>
+                    My Account
+                  </>
+                ) : (
+                  <>
+                    <User size={16} /> Sign In
+                  </>
+                )}
+              </Link>
             </nav>
           </motion.div>
         )}
