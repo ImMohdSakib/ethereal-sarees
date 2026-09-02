@@ -13,7 +13,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-[100svh] min-h-[100dvh] flex flex-col overflow-hidden">
       {/* Background images — different for mobile vs desktop */}
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0">
         {/* Mobile image: portrait-friendly woman in traditional attire */}
         <img
           src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=900&q=85"
